@@ -1,20 +1,18 @@
 // Import packages
 const express = require("express");
+const cors = require("cors"); // Import CORS
 const authRoutes = require("./routes/auth");
 
-// Middlewares
+// Initialize app
 const app = express();
+
+// Middlewares
 app.use(express.json());
+app.use(cors()); // Enable CORS
 
 // Routes
-
-// get
 app.use("/auth", authRoutes);
 
-//post
-// app.use("/dispense", home);
-// app.use("/spin", home);
-
-// connection
+// Connection
 const port = process.env.PORT || 9001;
-app.listen(port, () => console.log(`Listening to port ${port}`));
+app.listen(port, () => console.log(`Listening on port ${port}`));
