@@ -1,13 +1,19 @@
 // Import packages
 const express = require("express");
-const home = require("./routes/home");
+const authRoutes = require("./routes/auth");
 
 // Middlewares
 const app = express();
 app.use(express.json());
 
 // Routes
-app.use("/home", home);
+
+// get
+app.use("/auth", authRoutes);
+
+//post
+// app.use("/dispense", home);
+// app.use("/spin", home);
 
 // connection
 const port = process.env.PORT || 9001;
