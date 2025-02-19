@@ -5,16 +5,19 @@ const bodyParser = require("body-parser");
 const authRoutes = require("./routes/auth");
 const contractRoutes = require("./routes/contract");
 
+const app = express(); // Initialize app first
+
 const corsOptions = {
   origin: "*", // Allow all origins
   methods: "GET, POST, PUT, DELETE, OPTIONS",
   allowedHeaders: "Content-Type, Authorization",
+  credentials: true, // Allow credentials (if needed)
+  optionsSuccessStatus: 204, // Respond successfully to preflight requests
+  preflightContinue: false,
 };
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Place this before routes
 
-// Initialize app
-const app = express();
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
