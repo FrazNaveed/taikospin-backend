@@ -67,56 +67,70 @@ router.get("/signMessage", (req, res) => {
 });
 
 router.post("/verifySignature", async (req, res) => {
-  // Set CORS headers
-  const origin = req.headers.origin || "*"; // Allow all origins if none specified
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+  try {
+    // Set CORS headers
+    const origin = req.headers.origin || "*"; // Allow all origins if none specified
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight requests
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+    // Handle preflight requests
+    if (req.method === "OPTIONS") {
+      return res.status(200).end();
+    }
 
-  // Parse request body
-  const { message, signature, address } = req.body;
+    // Parse request body
+    const { message, signature, address } = req.body;
 
-  if (!message || !signature || !address) {
-    return res.status(400).json({ error: "Missing required fields." });
-  }
+    if (!message || !signature || !address) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
 
-  const isValid = verifySignature(message, signature, address);
+    const isValid = verifySignature(message, signature, address);
 
-  if (OWNER_ADDRESS === address) {
-    return res.status(200).json({
-      success: true,
-      message: "Admin: Signature verification successful",
-    });
-  }
-
-  if (isValid) {
-    try {
-      let tx = await contract.transferToUser(address);
-      await tx.wait();
-
+    if (OWNER_ADDRESS === address) {
       return res.status(200).json({
         success: true,
-        message: "Congratulations! You got 1 Taiko 🥁",
+        message: "Admin: Signature verification successful",
       });
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Transaction failed." });
     }
-  } else {
+
+    if (isValid) {
+      // **Send response immediately**
+      res.status(202).json({
+        success: true,
+        message: "Transaction initiated. Please wait for confirmation.",
+      });
+
+      // **Process transaction asynchronously**
+      contract
+        .transferToUser(address)
+        .then(async (tx) => {
+          console.log("Transaction submitted:", tx.hash);
+          await tx.wait();
+          console.log("Transaction confirmed:", tx.hash);
+        })
+        .catch((error) => {
+          console.error("Transaction failed:", error);
+        });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid signature.",
+      });
+    }
+  } catch (error) {
+    console.error("Server error:", error);
     return res
-      .status(400)
-      .json({ success: false, message: "Invalid signature." });
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
   }
 });
 
