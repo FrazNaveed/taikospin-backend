@@ -6,7 +6,7 @@ const authRoutes = require("./routes/auth");
 const contractRoutes = require("./routes/contract");
 
 const app = express(); // Initialize app first
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }));
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 

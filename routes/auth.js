@@ -67,10 +67,9 @@ router.get("/signMessage", (req, res) => {
 });
 
 router.post("/verifySignature", async (req, res) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin); // Allow the requesting origin
-  }
+  // Set CORS headers
+  const origin = req.headers.origin || "*"; // Allow all origins if none specified
+  res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -78,12 +77,12 @@ router.post("/verifySignature", async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight requests (OPTIONS)
+  // Handle preflight requests
   if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Respond to OPTIONS with 200 OK
+    return res.status(200).end();
   }
 
-  // Your route logic
+  // Parse request body
   const { message, signature, address } = req.body;
 
   if (!message || !signature || !address) {
@@ -92,7 +91,7 @@ router.post("/verifySignature", async (req, res) => {
 
   const isValid = verifySignature(message, signature, address);
 
-  if (OWNER_ADDRESS == address) {
+  if (OWNER_ADDRESS === address) {
     return res.status(200).json({
       success: true,
       message: "Admin: Signature verification successful",
