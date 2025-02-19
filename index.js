@@ -1,8 +1,9 @@
-// Import packages
+require("dotenv").config();
 const express = require("express");
-const cors = require("cors"); // Import CORS
-const bodyParser = require("body-parser"); // Import body-parser
+const cors = require("cors");
+const bodyParser = require("body-parser");
 const authRoutes = require("./routes/auth");
+const contractRoutes = require("./routes/contract");
 
 // Initialize app
 const app = express();
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded request
 
 // Routes
 app.use("/auth", authRoutes);
+app.use("/contract", contractRoutes);
 
 // Connection
 const port = process.env.PORT || 9001;
