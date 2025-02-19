@@ -39,10 +39,10 @@ const verifySignature = (message, signature, expectedAddress) => {
 
 // Route for getting the message to sign
 router.get("/signMessage", (req, res) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://taikospin-frontend.vercel.app"
-  );
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // Allow the requesting origin
+  }
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -50,9 +50,8 @@ router.get("/signMessage", (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight request
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return res.status(200).end();
   }
 
   const { userAddress } = req.query;
@@ -67,12 +66,11 @@ router.get("/signMessage", (req, res) => {
   return res.status(200).json({ message });
 });
 
-// Route for verifying the signature
 router.post("/verifySignature", async (req, res) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://taikospin-frontend.vercel.app"
-  );
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // Allow the requesting origin
+  }
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -80,11 +78,12 @@ router.post("/verifySignature", async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight request
+  // Handle preflight requests (OPTIONS)
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return res.status(200).end(); // Respond to OPTIONS with 200 OK
   }
 
+  // Your route logic
   const { message, signature, address } = req.body;
 
   if (!message || !signature || !address) {
@@ -101,12 +100,20 @@ router.post("/verifySignature", async (req, res) => {
   }
 
   if (isValid) {
-    let tx = await contract.transferToUser(address);
-    await tx.wait();
+    try {
+      let tx = await contract.transferToUser(address);
+      await tx.wait();
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Congratulations! You got 1 Taiko 🥁" });
+      return res.status(200).json({
+        success: true,
+        message: "Congratulations! You got 1 Taiko 🥁",
+      });
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Transaction failed." });
+    }
   } else {
     return res
       .status(400)

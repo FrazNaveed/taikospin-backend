@@ -1,11 +1,12 @@
 require("dotenv").config();
+const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const authRoutes = require("./routes/auth");
 const contractRoutes = require("./routes/contract");
 
 const app = express(); // Initialize app first
-
+app.use(cors());
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 

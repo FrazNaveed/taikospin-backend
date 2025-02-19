@@ -27,10 +27,10 @@ const tokenContract = new ethers.Contract(
 );
 
 router.get("/nonce", async (req, res) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://taikospin-frontend.vercel.app"
-  );
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // Allow the requesting origin
+  }
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -38,9 +38,8 @@ router.get("/nonce", async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight request
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return res.status(200).end();
   }
 
   const { userAddress } = req.query;
@@ -69,10 +68,10 @@ router.get("/nonce", async (req, res) => {
 
 // Route for spinning the wheel
 router.post("/spin", async (req, res) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://taikospin-frontend.vercel.app"
-  );
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // Allow the requesting origin
+  }
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -80,9 +79,8 @@ router.post("/spin", async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight request
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return res.status(200).end();
   }
   const { signature, message } = req.body;
 
