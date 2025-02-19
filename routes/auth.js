@@ -39,6 +39,22 @@ const verifySignature = (message, signature, expectedAddress) => {
 
 // Route for getting the message to sign
 router.get("/signMessage", (req, res) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://taikospin-frontend.vercel.app"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   const { userAddress } = req.query;
 
   if (!userAddress || !/^0x[a-fA-F0-9]{40}$/.test(userAddress)) {
@@ -53,6 +69,22 @@ router.get("/signMessage", (req, res) => {
 
 // Route for verifying the signature
 router.post("/verifySignature", async (req, res) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://taikospin-frontend.vercel.app"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   const { message, signature, address } = req.body;
 
   if (!message || !signature || !address) {
