@@ -102,28 +102,33 @@ router.post("/verifySignature", async (req, res) => {
       });
     }
 
-    if (isValid) {
-      // **Send response immediately**
-      res.status(202).json({
-        success: true,
-        message: "Transaction initiated. Please wait for confirmation.",
-      });
-
-      // **Process transaction asynchronously**
-      contract
-        .transferToUser(address)
-        .then(async (tx) => {
-          console.log("Transaction submitted:", tx.hash);
-          await tx.wait();
-          console.log("Transaction confirmed:", tx.hash);
-        })
-        .catch((error) => {
-          console.error("Transaction failed:", error);
-        });
-    } else {
+    if (!isValid) {
       return res.status(400).json({
         success: false,
         message: "Invalid signature.",
+      });
+    }
+
+    try {
+      const gasPrice = await provider.getFeeData();
+
+      const tx = await contract.transferToUser(address);
+
+      console.log("Transaction submitted:", tx.hash);
+
+      await tx.wait();
+      console.log("Transaction confirmed:", tx.hash);
+
+      return res.status(200).json({
+        success: true,
+        message: "Success! You got 0.1 Taiko 🥁",
+      });
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Transaction failed. Cool down period for claim is 5 minutes",
+        error: error.message,
       });
     }
   } catch (error) {
